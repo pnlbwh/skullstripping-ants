@@ -1,0 +1,6 @@
+option(build_mainANTSAtlasWeightedOutputProbability "build mainANTSAtlasWeightedOutputProbability?" ON)
+if (build_mainANTSAtlasWeightedOutputProbability)
+    set(cexx mainANTSAtlasWeightedOutputProbability)
+    add_executable(${cexx} ${cexx}.cxx)
+    target_link_libraries(${cexx} ${namicLibraries}  l_ANTS l_WarpImageMultiTransform l_MeasureImageSimilarity antsUtilities )
+endif (build_mainANTSAtlasWeightedOutputProbability)
