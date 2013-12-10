@@ -17,6 +17,7 @@
 
 // ANTS
 #include "ants.h"
+#include "itkAvantsMutualInformationRegistrationFunction.h"
 
 // local
 #include "atlasSegANTS.h"
@@ -39,8 +40,14 @@ namespace kalmanAtlas
                         const std::vector<std::string>& labelImageNameList)
   {
 
+      const unsigned int ImageDim = 3;
+      typedef float pixel_t;
+
       typedef float internal_pixel_t;
       typedef itk::Image<internal_pixel_t, 3> internal_image_t;
+
+      typedef itk::Image<pixel_t, ImageDim> image_t;
+      image_t::Pointer rawImg = kalmanAtlas::readImage<image_t>(rawImageName.c_str());
 
       unsigned long nTrainingImg = trainingImageNameList.size();
       std::vector< typename internal_image_t::Pointer > transformedLabelImages(nTrainingImg);
@@ -107,38 +114,63 @@ namespace kalmanAtlas
 
           // Measure image similarity
           std::cout << "--- MeasureImageSimilarity: Running (ANTS similarity) <- " << prefix.str() << ".nii.gz," << rawImageName << std::endl << std::flush;
-          std::vector<std::string> args3;
-          args3.push_back("3");
-          args3.push_back("2");  // 2 for ANTS
-          args3.push_back(trainingImageNameList[iTrainingImg]); 
-          args3.push_back(rawImageName);
-          std::stringstream ants_output;
-          std::cout << "MeasureImageSimilarity: calling with args: "  << std::endl;
-          copy(args3.begin(), args3.end(), std::ostream_iterator<std::string>(std::cout, " "));
-          std::cout << std::endl << std::flush;
-          ants::MeasureImageSimilarity(args3, &ants_output);
-          std::cout << "MeasureImageSimilarity: done "  << std::endl;
 
-          std::vector<std::string> output;
-          std::string token;
-          while (ants_output >> token) 
-          {
-              output.push_back(token);
-          }
-          registrationFinalCostFunctionalValues[iTrainingImg] = ::atof(output[5].c_str());
-          std::cout << "MeasureImageSimilarity: cost function: " << registrationFinalCostFunctionalValues[iTrainingImg] << std::endl;
-          std::cout << "--- MeasureImageSimilarity: Done" << std::endl << std::flush;
-          std::cout << std::endl;
+          //std::vector<std::string> args3;
+          //args3.push_back("3");
+          //args3.push_back("2");  // 2 for mutual information
+          //args3.push_back(trainingImageNameList[iTrainingImg]); 
+          //args3.push_back(rawImageName);
+          //std::stringstream ants_output;
+          //std::cout << "MeasureImageSimilarity: calling with args: "  << std::endl;
+          //copy(args3.begin(), args3.end(), std::ostream_iterator<std::string>(std::cout, " "));
+          //std::cout << std::endl << std::flush;
+          //ants::MeasureImageSimilarity(args3, &ants_output);
+          //std::cout << "MeasureImageSimilarity: done "  << std::endl << std::flush;
+          //std::vector<std::string> output;
+          //std::string token;
+          //std::cout << "tokens: ";
+          //while (ants_output >> token) 
+          //{
+              //output.push_back(token);
+              //std::cout << token << "|" << std::flush;
+          //}
+          //std::cout << std::endl;
+          //registrationFinalCostFunctionalValues[iTrainingImg] = ::atof(output[5].c_str());
+          
+          image_t::Pointer trainingImg = kalmanAtlas::readImage<image_t>(trainingImageNameList[iTrainingImg].c_str()); 
+
+          typedef internal_image_t FixedImageType;
+          typedef internal_image_t MovingImageType;
+          typedef itk::Vector<float, 3>                     VectorType;
+          typedef itk::Image<VectorType, 3>                 FieldType;
+          typedef FieldType DisplacementFieldType;
+          typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType, MovingImageType,
+                                                           DisplacementFieldType>  MIMetricType;
+
+          typename MIMetricType::RadiusType miradius;
+          miradius.Fill(0);
+          typename MIMetricType::Pointer mimet = MIMetricType::New();
+          mimet->SetFixedImage(rawImg);
+          mimet->SetMovingImage(trainingImg);
+          mimet->SetRadius(miradius);
+          mimet->SetGradientStep(1.e2);
+          mimet->SetNormalizeGradient(false);
+
+          double      metricvalue = 0;
+          mimet->InitializeIteration();
+          metricvalue = mimet->ComputeMutualInformation();
+
+         registrationFinalCostFunctionalValues[iTrainingImg] = metricvalue;
+         std::cout << "MeasureImageSimilarity: cost function: " << registrationFinalCostFunctionalValues[iTrainingImg] << std::endl;
+         std::cout << "--- MeasureImageSimilarity: Done" << std::endl << std::flush;
+         std::cout << std::endl;
+          
       }
 
       std::cout<<"Finished ANTS\n"<<std::flush;
 
 
       // 2.
-      const unsigned int ImageDim = 3;
-      typedef float pixel_t;
-      typedef itk::Image<pixel_t, ImageDim> image_t;
-      image_t::Pointer rawImg = kalmanAtlas::readImage<image_t>(rawImageName.c_str());
       typename internal_image_t::Pointer resultLabelImg = internal_image_t::New();
       resultLabelImg->SetRegions(rawImg->GetLargestPossibleRegion());
       resultLabelImg->Allocate();

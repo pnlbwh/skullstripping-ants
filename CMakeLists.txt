@@ -46,7 +46,11 @@ set(headerAndLibDir
 
 include_directories(${headerAndLibDir})
 
-include_directories(${ANTS_SRC}/Examples/include)
+include_directories(
+    ${ANTS_SRC}/Examples/include
+    ${ANTS_SRC}/ImageRegistration
+    ${ANTS_SRC}/Utilities
+    )
 link_directories(${ANTS_BUILD}/lib/)
 
 # regular multi-atlas segmentation based on ANTS registration
