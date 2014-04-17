@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
-if(COMMAND cmake_policy)
-    cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
+#if(COMMAND cmake_policy)
+    #cmake_policy(SET CMP0003 NEW)
+#endif(COMMAND cmake_policy)
 
 set(projName "skullStripping")
 project(${projName})
@@ -10,6 +10,18 @@ project(${projName})
 configure_file (
   "${PROJECT_SOURCE_DIR}/cmakeConfig.h.in"
   "${PROJECT_BINARY_DIR}/cmakeConfig.h"
+  )
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/scripts/compute_transform.sh.in"
+  "${PROJECT_BINARY_DIR}/scripts/compute_transform.sh"
+  @ONLY
+  )
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/scripts/compute_all_transforms.sh.in"
+  "${PROJECT_BINARY_DIR}/scripts/compute_all_transforms.sh"
+  @ONLY
   )
  
 # add the binary tree to the search path for include files

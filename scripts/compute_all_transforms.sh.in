@@ -1,0 +1,28 @@
+#!/bin/bash
+
+usage() {
+    cat << EOF
+
+    Usage:
+
+        $(basename $0) <fixed> <txtfile>
+
+    <fixed>    : the target image
+    <txt_file> : a text file of the list of training images
+EOF
+}
+
+if [[ $1 == "-h" || $1 == "--help" || -z "$1" ]]; then
+    usage
+    exit 0
+fi
+
+ANTS=@ANTS_BUILD@/bin/ANTS
+fixed=$1
+txtfile=$2
+while read trainingimg; do
+    mbase=$(basename $trainingimg | cut -d. -f1)
+    fbase=$(basename $fixed | cut -d. -f1)
+    outprefix="${mbase}_to_${fbase}"
+    $ANTS 3 -m "CC[$fixed,$trainingimg,1,5]" -i 50x20x10 -r "Gauss[3,0]" -o $outprefix
+done < $txtfile

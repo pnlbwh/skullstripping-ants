@@ -1,0 +1,22 @@
+#!/bin/bash
+
+usage() {
+    cat << EOF
+    Usage:
+
+        $(basename $0) <fixed> <moving> <output_prefix> 
+EOF
+}
+
+if [[ $1 == "-h" || $1 == "--help" || -z "$1" ]]; then
+    usage
+    exit 0
+fi
+
+ANTS=@ANTS_BUILD@/bin/ANTS
+
+fixed=$1
+moving=$2
+prefix=$3
+
+$ANTS 3 -m "CC[$fixed,$moving,1,5]" -i 50x20x10 -r "Gauss[3,0]" -o $prefix
