@@ -33,7 +33,7 @@ endif (USE_OMP)
 #set(ITK_DIR $ENV{ITK_DIR})
 find_package (ITK)
 if (ITK_FOUND)
-   include(${USE_ITK_FILE})
+    include(${ITK_USE_FILE})
 endif(ITK_FOUND) 
 
 set(itkLibraries itkvnl ${ITK_LIBRARIES})
