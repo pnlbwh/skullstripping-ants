@@ -16,7 +16,7 @@ Next, we can build the skullstripping-ants code:
 
     git clone https://github.com/pnlbwh/skullstripping-ants.git
     mkdir skullstripping-ants-build && cd skullstripping-ants-build
-    ccmake .. -DITK_DIR=/path/to/ANTS-build/ITKv4-build/ -DANTS_BUILD=/path/to/ANTS-build -DANTS_SRC=/path/to/ANTS/trunk/
+    ccmake ../skullstirpping-ants -DITK_DIR=/path/to/ANTS-build/ITKv4-build/ -DANTS_BUILD=/path/to/ANTS-build -DANTS_SRC=/path/to/ANTS/trunk/
     make
 
 
