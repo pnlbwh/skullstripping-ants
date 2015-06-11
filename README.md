@@ -16,7 +16,7 @@ Next, we can build the skullstripping-ants code:
 
     git clone https://github.com/pnlbwh/skullstripping-ants.git
     mkdir skullstripping-ants-build && cd skullstripping-ants-build
-    ccmake ../skullstirpping-ants -DITK_DIR=/path/to/ANTS-build/ITKv4-build/ -DANTS_BUILD=/path/to/ANTS-build -DANTS_SRC=/path/to/ANTS/trunk/
+    ccmake ../skullstripping-ants -DITK_DIR=/path/to/ANTS-build/ITKv4-build/ -DANTS_BUILD=/path/to/ANTS-build -DANTS_SRC=/path/to/ANTS/trunk/
     make
 
 
@@ -25,8 +25,8 @@ How to Run
 
 You need to create 2 text files, which contain the paths to your training set: 
 
-1) text file with list of structural images, e.g. `t1s.txt`
-2) text file with list of structural image masks, e.g. `masks.txt`.  
+1. text file with list of structural images, e.g. `t1s.txt`
+2. text file with list of structural image masks, e.g. `masks.txt`.  
 
 Requirements:
 
