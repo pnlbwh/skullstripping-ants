@@ -14,6 +14,8 @@
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkRegionOfInterestImageFilter.h"
 #include "itkCastImageFilter.h"
+#include "itkMutualInformationImageToImageMetric.h"
+#include "itkMattesMutualInformationImageToImageMetricv4.h"
 
 // ANTS
 #include "ants.h"
@@ -137,6 +139,7 @@ namespace kalmanAtlas
           //std::cout << std::endl;
           //registrationFinalCostFunctionalValues[iTrainingImg] = ::atof(output[5].c_str());
           
+          std::cout << "Reading into trainingImg " << trainingImageNameList[iTrainingImg].c_str() << std::endl << std::flush;
           image_t::Pointer trainingImg = kalmanAtlas::readImage<image_t>(trainingImageNameList[iTrainingImg].c_str()); 
 
           typedef internal_image_t FixedImageType;
@@ -144,21 +147,57 @@ namespace kalmanAtlas
           typedef itk::Vector<float, 3>                     VectorType;
           typedef itk::Image<VectorType, 3>                 FieldType;
           typedef FieldType DisplacementFieldType;
-          typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType, MovingImageType,
-                                                           DisplacementFieldType>  MIMetricType;
+          //typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType, MovingImageType,
+                                                           //DisplacementFieldType>  MIMetricType;
+          std::cout << "Computing ComputeMutualInformation()" << std::endl << std::flush;
+          typedef itk::MattesMutualInformationImageToImageMetricv4<FixedImageType, MovingImageType >  MIMetricType;
+          MIMetricType::Pointer         metric        = MIMetricType::New();
+          metric->SetNumberOfHistogramBins( 32 );
+          metric->SetFixedImage( rawImg ); 
+          metric->SetMovingImage( trainingImg ); 
+          metric->Initialize(); 
+          double metricvalue = metric->GetValue(); 
+          std::cout << "Done ComputeMutualInformation()" << std::endl << std::flush;
 
-          typename MIMetricType::RadiusType miradius;
-          miradius.Fill(0);
-          typename MIMetricType::Pointer mimet = MIMetricType::New();
-          mimet->SetFixedImage(rawImg);
-          mimet->SetMovingImage(trainingImg);
-          mimet->SetRadius(miradius);
-          mimet->SetGradientStep(1.e2);
-          mimet->SetNormalizeGradient(false);
+          /* ITK 
+          typedef itk::MutualInformationImageToImageMetric<FixedImageType, MovingImageType>  MetricType;
+          typedef itk::LinearInterpolateImageFunction<internal_image_t, double> InterpolatorType;
+          typedef itk::TranslationTransform< double, 3 > TransformType;
+          typename MetricType::Pointer mi = MetricType::New();
+          TransformType::Pointer      transform     = TransformType::New();
+          InterpolatorType::Pointer   interpolator  = InterpolatorType::New();
+          mi->SetMovingImage(trainingImg);
+          mi->SetFixedImage(rawImg);
+          mi->SetMovingImageStandardDeviation(1);
+          mi->SetFixedImageStandardDeviation(1);
+          mi->SetNumberOfSpatialSamples(50);
+          mi->SetTransform( transform );
+          mi->SetInterpolator( interpolator );
+          try {
+              mi->Initialize();
+          }
+          catch( itk::ExceptionObject &exp )
+          {
+              std::cerr << exp << std::endl;
+          }
+          double metricvalue = mi->GetValue();
+            */
 
-          double      metricvalue = 0;
-          mimet->InitializeIteration();
-          metricvalue = mimet->ComputeMutualInformation();
+          //typename MIMetricType::RadiusType miradius;
+          //miradius.Fill(0);
+          //std::cout << "Made miradius" << std::endl << std::flush;
+          //typename MIMetricType::Pointer mimet = MIMetricType::New();
+          //mimet->SetFixedImage(rawImg);
+          //mimet->SetMovingImage(trainingImg);
+          //mimet->SetRadius(miradius);
+          //mimet->SetGradientStep(1.e2);
+          //mimet->SetNormalizeGradient(false);
+
+          //double      metricvalue = 0;
+          //mimet->InitializeIteration();
+          //std::cout << "Computing ComputeMutualInformation()" << std::endl << std::flush;
+          //metricvalue = mimet->ComputeMutualInformation();
+          //std::cout << "Done ComputeMutualInformation()" << std::endl << std::flush;
 
          registrationFinalCostFunctionalValues[iTrainingImg] = metricvalue;
          std::cout << "MeasureImageSimilarity: cost function: " << registrationFinalCostFunctionalValues[iTrainingImg] << std::endl;
