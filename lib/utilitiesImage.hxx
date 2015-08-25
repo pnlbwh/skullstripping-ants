@@ -62,7 +62,7 @@ namespace kalmanAtlas
 
 
   template<typename image_t>
-  double getVol(typename image_t::Pointer img, typename image_t::PixelType thld = 0)
+  double getVol(typename image_t::Pointer img, typename image_t::PixelType thld)
   {
     typedef itk::ImageRegionConstIterator<image_t> ImageRegionConstIterator_t;
     ImageRegionConstIterator_t it(img, img->GetLargestPossibleRegion() );
@@ -88,8 +88,8 @@ namespace kalmanAtlas
   thld3(typename input_image_t::Pointer input,                            \
         typename input_image_t::PixelType lowerT,                         \
         typename input_image_t::PixelType upperT, \
-        typename output_image_t::PixelType insideValue = 1,               \
-        typename output_image_t::PixelType outsideValue = 0)
+        typename output_image_t::PixelType insideValue,               \
+        typename output_image_t::PixelType outsideValue)
   {
     /**
      * O(x) :=    I(x) \in [lowerT, upperT] ? insideValue : outsideValue
@@ -119,8 +119,8 @@ namespace kalmanAtlas
   binarilizeImage(typename input_image_t::Pointer input,                 \
                   typename input_image_t::PixelType lowerT,                         \
                   typename input_image_t::PixelType upperT, \
-                  typename output_image_t::PixelType insideValue = 1,               \
-                  typename output_image_t::PixelType outsideValue = 0)
+                  typename output_image_t::PixelType insideValue,               \
+                  typename output_image_t::PixelType outsideValue)
   {
     /**
      * O(x) :=    I(x) \in [lowerT, upperT] ? insideValue : outsideValue
@@ -149,7 +149,7 @@ namespace kalmanAtlas
   typename output_image_t::Pointer
   binarilizeImage(typename input_image_t::Pointer input,                \
                   typename input_image_t::PixelType thld,               \
-                  typename output_image_t::PixelType insideValue = 1)
+                  typename output_image_t::PixelType insideValue)
   {
     typename input_image_t::PixelType lowerT = thld;
     typename input_image_t::PixelType upperT = static_cast<typename input_image_t::PixelType>(1e16);
